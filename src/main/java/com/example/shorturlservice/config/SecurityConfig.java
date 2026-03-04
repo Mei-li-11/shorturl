@@ -33,7 +33,7 @@ public class SecurityConfig {
                         // 1. 登录接口必须放行，不然谁都拿不到钥匙
                         .requestMatchers("/api/auth/login").permitAll()
                         // 2. 前台生成短链的接口和真实的重定向跳转接口必须放行，不然普通用户没法用
-                        .requestMatchers("/api/shortlinks/generate", "/*").permitAll()
+                        .requestMatchers("/api/shortlinks/generate", "/*", "/api/open/**").permitAll()
                         // 3. 其他所有接口（比如 /api/shortlinks 里的增删改查），必须要有 Token 才能进！
                         .anyRequest().authenticated()
                 )

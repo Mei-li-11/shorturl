@@ -35,7 +35,7 @@ public class ShortUrl {
 
     private Long clickCount = 0L; // 点击次数
 
-    private String appId; // 应用标识
+    private Long appId; // 应用标识
 
 
     // ================= 以下是手动添加的 Getter 和 Setter =================
@@ -67,6 +67,6 @@ public class ShortUrl {
     public Long getClickCount() { return clickCount; }
     public void setClickCount(Long clickCount) { this.clickCount = clickCount; }
 
-    public String getAppId() { return appId; }
-    public void setAppId(String appId) { this.appId = appId; }
+    public Long getAppId() { return appId; }
+    public void setAppId(Long appId) { this.appId = appId; }
 }

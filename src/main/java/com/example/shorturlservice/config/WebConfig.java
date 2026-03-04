@@ -1,5 +1,6 @@
 package com.example.shorturlservice.config;
 
+import com.example.shorturlservice.interceptor.ApiAuthInterceptor;
 import com.example.shorturlservice.interceptor.RateLimitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +13,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private RateLimitInterceptor rateLimitInterceptor;
 
+    @Autowired // 🌟 把刚写好的 API 保安请过来
+    private ApiAuthInterceptor apiAuthInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 让保安拦截所有的接口 ("/**")，具体放不放行，由保安在代码里看有没有 @RateLimit 标签来决定
+        // 1. 防刷保安：拦截所有接口
         registry.addInterceptor(rateLimitInterceptor).addPathPatterns("/**");
+
+        // 🌟 2. AK/SK 验签保安：【只拦截】专门给外部应用开的 /api/open 开头的接口
+        registry.addInterceptor(apiAuthInterceptor).addPathPatterns("/api/open/**");
     }
 }
