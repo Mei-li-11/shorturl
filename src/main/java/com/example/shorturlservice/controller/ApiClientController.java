@@ -5,6 +5,7 @@ import com.example.shorturlservice.entity.ShortUrl;
 import com.example.shorturlservice.repository.ApiClientRepository;
 import com.example.shorturlservice.repository.ShortUrlRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,6 +22,10 @@ public class ApiClientController {
 
     @Autowired
     private ShortUrlRepository shortUrlRepository;
+
+    // 🌟 1. 新增：引入 Redis 操作工具，专门用来“踢人”
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     // 1. 获取所有 API 客户列表
     @GetMapping
@@ -60,10 +65,12 @@ public class ApiClientController {
             client.setEnabled(false); // 封禁应用本身
             apiClientRepository.save(client);
 
-            // 🌟 修正：找出它生成的所有短链，全部设为禁用 (false)！
             List<ShortUrl> urls = shortUrlRepository.findByAppId(id);
             for (ShortUrl url : urls) {
-                url.setEnabled(false); // 之前这里写的是 true，现在改好了
+                url.setEnabled(false); // 数据库状态置为禁用
+
+                // 🌟 2. 核心修复：顺手把这个短链在 Redis 里的缓存给彻底删掉！
+                redisTemplate.delete("shorturl:" + url.getShortCode());
             }
             shortUrlRepository.saveAll(urls);
         }
@@ -82,10 +89,12 @@ public class ApiClientController {
             client.setEnabled(true); // 解封应用本身
             apiClientRepository.save(client);
 
-            // 🌟 修正：找出它生成的所有短链，全部恢复启用 (true)！
             List<ShortUrl> urls = shortUrlRepository.findByAppId(id);
             for (ShortUrl url : urls) {
-                url.setEnabled(true);
+                url.setEnabled(true); // 数据库状态恢复启用
+
+                // 🌟 3. 同理，解封时也把老的缓存清一下
+                redisTemplate.delete("shorturl:" + url.getShortCode());
             }
             shortUrlRepository.saveAll(urls);
         }
