@@ -10,12 +10,14 @@
 - ✅ 速率限制：防止滥用API
 - ✅ 过期链接清理：自动清理过期的短链接
 - ✅ 数据初始化：系统启动时自动初始化测试数据
+- ✅ OpenAPI支持：提供标准化的API接口
+- ✅ API客户端认证：基于签名的API认证机制
 
 ## 技术栈
 
 - **后端框架**：Spring Boot 3.0+
 - **安全框架**：Spring Security
-- **认证方式**：JWT (JSON Web Token)
+- **认证方式**：JWT (JSON Web Token)、API签名认证
 - **数据库**：Spring Data JPA (支持多种数据库)
 - **构建工具**：Maven
 - **Java版本**：Java 17+
@@ -36,6 +38,7 @@ shorturl-service/
 │   │   │   ├── repository/      # 数据访问层
 │   │   │   ├── service/         # 业务逻辑层
 │   │   │   ├── task/            # 定时任务
+│   │   │   ├── test/            # 测试文件
 │   │   │   ├── util/            # 工具类
 │   │   │   └── ShorturlServiceApplication.java  # 应用入口
 │   │   └── resources/
@@ -44,7 +47,8 @@ shorturl-service/
 ├── pom.xml                      # Maven配置文件
 ├── mvnw                         # Maven wrapper
 ├── mvnw.cmd                     # Maven wrapper (Windows)
-└── README.md                    # 项目说明
+├── README.md                    # 项目说明
+└── HELP.md                      # 帮助文档
 ```
 
 ## 快速开始
@@ -116,9 +120,55 @@ shorturl-service/
 - **DELETE /api/short-url/{id}** - 删除短链接
   - 需要JWT认证
 
+#### OpenAPI接口
+
+- **POST /openapi/short-url** - 创建短链接（API客户端认证）
+  - 请求头：
+    - `X-API-Key`: API客户端密钥
+    - `X-Signature`: 请求签名
+    - `X-Timestamp`: 时间戳
+  - 请求体：`{"originalUrl": "https://example.com/very/long/url"}`
+  - 响应：包含短链接信息
+
+- **GET /openapi/short-url/{shortCode}** - 获取短链接信息（API客户端认证）
+  - 请求头：
+    - `X-API-Key`: API客户端密钥
+    - `X-Signature`: 请求签名
+    - `X-Timestamp`: 时间戳
+  - 响应：包含短链接详细信息
+
 #### 重定向接口
 
 - **GET /{shortCode}** - 访问短链接，重定向到原始URL
+
+## API客户端认证
+
+### 认证流程
+
+1. **获取API密钥**：通过系统管理员获取API客户端密钥
+2. **生成签名**：使用API密钥对请求参数进行签名
+3. **发送请求**：在请求头中包含API密钥、签名和时间戳
+4. **服务端验证**：验证签名的有效性和时间戳的新鲜度
+
+### 签名生成示例
+
+```java
+// 生成时间戳
+long timestamp = System.currentTimeMillis();
+
+// 构建签名字符串
+StringBuilder signStr = new StringBuilder();
+signStr.append("POST")
+       .append("&")
+       .append(URLEncoder.encode("/openapi/short-url", "UTF-8"))
+       .append("&")
+       .append(timestamp)
+       .append("&")
+       .append(URLEncoder.encode(requestBody, "UTF-8"));
+
+// 使用API密钥进行HMAC-SHA256签名
+String signature = HMACSHA256(signStr.toString(), apiSecret);
+```
 
 ## 系统默认数据
 
@@ -132,6 +182,10 @@ shorturl-service/
   - 原始URL：https://www.example.com
   - 短链接：http://localhost:8080/abc123
 
+- **默认API客户端**：
+  - API Key：test-api-key
+  - API Secret：test-api-secret
+
 ## 定时任务
 
 - **点击计数同步**：每5分钟将内存中的点击计数同步到数据库
@@ -141,10 +195,12 @@ shorturl-service/
 
 - 未认证请求：每分钟最多10次请求
 - 已认证请求：每分钟最多30次请求
+- API客户端请求：每分钟最多50次请求
 
 ## 安全配置
 
 - 使用JWT进行身份认证
+- 使用API签名进行API客户端认证
 - 密码使用BCrypt加密存储
 - 配置了CORS策略
 - 启用了CSRF保护
