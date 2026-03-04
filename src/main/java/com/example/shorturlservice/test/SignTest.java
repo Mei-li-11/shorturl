@@ -4,8 +4,8 @@ import org.springframework.util.DigestUtils;
 public class SignTest {
     public static void main(String[] args) {
         // 假设我是淘宝系统，这是你们分配给我的 AK 和 SK
-        String appKey = "demo_ak";
-        String secretKey = "demo_sk_888";
+        String appKey = "7b35fff745f345a0";
+        String secretKey = "2419be3109bc48c8bb9d0245899525e4";
 
         // 获取当前精确到毫秒的时间戳
         String timestamp = String.valueOf(System.currentTimeMillis());

@@ -1,10 +1,10 @@
 ### 测试 OpenAPI 外部调用接口
 POST http://localhost:8080/api/open/generate
 Content-Type: application/json
-X-App-Key: demo_ak
-X-Timestamp: 1772606451365
-X-Sign: 3d59ab28f9c6fd6aec5cf40e3c951938
+X-App-Key: 7b35fff745f345a0
+X-Timestamp: 1772631213974
+X-Sign: 75e0d9b2110fb8ffde386166ab8d8b1f
 
 {
-  "originalUrl": "https://www.bing.com/search?q=1&qs=n&form=QBRE&sp=-1&lq=0&pq=1&sc=15-1&sk=&cvid=3F4E32AD257C485091F90A3F0FBE4503"
+  "originalUrl": "https://t.bilibili.com/?spm_id_from=333.1007.0.0"
 }

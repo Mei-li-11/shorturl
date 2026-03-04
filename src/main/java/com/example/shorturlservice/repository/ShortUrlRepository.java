@@ -20,4 +20,5 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, Long> {
     // 👇 🌟 核心新增：专门给定时任务（巡逻兵）用的查询魔法！
     // Spring 会自动把它翻译成 SQL：SELECT * FROM short_urls WHERE expires_at < 传入的时间 AND enabled = true
     List<ShortUrl> findByExpiresAtBeforeAndEnabledTrue(LocalDateTime now);
+    List<ShortUrl> findByAppId(Long appId);
 }

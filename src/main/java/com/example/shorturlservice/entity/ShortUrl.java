@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity // 告诉 JPA：这不仅是一个 Java 类，还是数据库里的一张表
-@Table(name = "short_urls") // 指定生成的表名叫 short_urls
+@Entity
+@Table(name = "short_urls")
 public class ShortUrl {
 
     @Id
@@ -14,31 +14,32 @@ public class ShortUrl {
     private Long id;
 
     @Column(length = 50)
-    private String name; // 名称
+    private String name;
 
     @Column(nullable = false, length = 1000)
-    private String originalUrl; // 原始长链接
+    private String originalUrl;
 
     @Column(unique = true, nullable = false)
-    private String shortCode; // 短码
+    private String shortCode;
 
     @Column(nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") // 魔法：把时间格式化成漂亮的模样
-    private LocalDateTime createdAt; // 创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime expiresAt; // 过期时间
+    private LocalDateTime expiresAt;
 
-    @Column(nullable = false)
-    @JsonProperty("status")
-    private Boolean enabled = true; // 状态：是否启用
+    // 🌟 统一使用 enabled，对应数据库列名也叫 enabled
+    @Column(name = "enabled", nullable = false)
+    @JsonProperty("status") // 前端展示依然可以叫 status 方便 UI 显示
+    private Boolean enabled = true;
 
-    private Long clickCount = 0L; // 点击次数
+    private Long clickCount = 0L;
 
-    private Long appId; // 应用标识
+    @Column(name = "app_id")
+    private Long appId;
 
-
-    // ================= 以下是手动添加的 Getter 和 Setter =================
+    // ================= Getter 和 Setter =================
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -58,10 +59,8 @@ public class ShortUrl {
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
 
-    @JsonProperty("status")
+    // 🌟 统一 Getter 和 Setter
     public Boolean getEnabled() { return enabled; }
-
-    @JsonProperty("status")
     public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 
     public Long getClickCount() { return clickCount; }
