@@ -15,12 +15,13 @@
 
 ## 技术栈
 
-- **后端框架**：Spring Boot 3.0+
+- **后端框架**：Spring Boot 4.0+
 - **安全框架**：Spring Security
 - **认证方式**：JWT (JSON Web Token)、API签名认证
 - **数据库**：Spring Data JPA (支持多种数据库)
+- **缓存**：Redis
 - **构建工具**：Maven
-- **Java版本**：Java 17+
+- **Java版本**：Java 21+
 
 ## 项目结构
 
@@ -55,9 +56,10 @@ shorturl-service/
 
 ### 环境要求
 
-- Java 17 或更高版本
+- Java 21 或更高版本
 - Maven 3.6 或更高版本
 - 数据库（推荐使用MySQL）
+- Redis（用于缓存和速率限制）
 
 ### 安装部署
 
@@ -68,15 +70,29 @@ shorturl-service/
    cd shorturl-service
    ```
 
-2. **配置数据库**
+2. **配置数据库和Redis**
 
-   修改 `src/main/resources/application.properties` 文件，配置数据库连接信息：
+   修改 `src/main/resources/application.properties` 文件，配置数据库和Redis连接信息：
 
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/shorturl?useSSL=false&serverTimezone=UTC
+   # 应用名称
+   spring.application.name=shorturl-service
+
+   # 数据库配置
+   spring.datasource.url=jdbc:mysql://localhost:3306/short_url_db?serverTimezone=Asia/Shanghai&characterEncoding=utf8
    spring.datasource.username=root
    spring.datasource.password=your-password
+
+   # JPA配置
    spring.jpa.hibernate.ddl-auto=update
+   spring.jpa.show-sql=true
+
+   # Redis配置
+   spring.data.redis.host=127.0.0.1
+   spring.data.redis.port=6379
+
+   # 服务器配置
+   server.port=8080
    ```
 
 3. **构建项目**
