@@ -14,3 +14,10 @@ dist/
 
 # Dependencies
 node_modules/
+
+# Maven build output
+target/
+
+# IDE specific files
+.idea/
+*.iml
