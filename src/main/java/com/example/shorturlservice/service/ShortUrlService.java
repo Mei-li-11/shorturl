@@ -22,14 +22,29 @@ public class ShortUrlService {
     private StringRedisTemplate redisTemplate;
 
     // 核心算法：生成 6 位随机短码
+    // 🌟 完美契合报告的“真·Base62 编码 + UUID 哈希”算法
     private String generateShortCode() {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random = new Random();
+        // 1. 严格对应报告里的字符表："0-9a-zA-Z"
+        String chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // 2. 严格对应报告："以UUID随机数的hashCode绝对值为输入"
+        long num = Math.abs((long) java.util.UUID.randomUUID().hashCode());
+
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+
+        // 3. 严格对应报告："以62为基数逐位映射至字符表" (这就是真正的 Base62 进制转换算法)
+        do {
+            int remainder = (int) (num % 62);
+            sb.append(chars.charAt(remainder));
+            num /= 62;
+        } while (num > 0);
+
+        // 4. 严格对应报告："截取6位作为最终短码" (由于 hashCode 转 Base62 通常是 5-6 位，不够 6 位就在前面补零)
+        while (sb.length() < 6) {
+            sb.insert(0, chars.charAt(0));
         }
-        return sb.toString();
+
+        return sb.substring(0, 6);
     }
 
     // ================== 【高并发核心读取逻辑】 ==================
